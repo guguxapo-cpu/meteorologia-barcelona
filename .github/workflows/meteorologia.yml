@@ -1,0 +1,34 @@
+
+name: Recollida meteorologica Barcelona
+
+on:
+  schedule:
+    - cron: "3,13,23,33,43,53 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  recollir:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descarregar el repositori
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Executar el programa
+        run: python recollir.py
+
+      - name: Desar les dades al repositori
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dades/historial.csv
+          git diff --cached --quiet || git commit -m "Actualitzar dades meteorologiques"
+          git push
